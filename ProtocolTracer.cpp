@@ -64,8 +64,8 @@ string invalid = "invalid_rtn";
 
 
 /* ===================================================================== */
-// ³­µ¶È­µÇ¾îÀÖÀ» °æ¿ì IAT ¿¡ ÀÖ´Â Á¤º¸µéÀÌ unnamedImageEntryPoint·Î Ç¥Çö
-// ÇÔ¼öÀÇ ÀÌ¸§À» µ¹·ÁÁÜ
+// ë‚œë…í™”ë˜ì–´ìˆì„ ê²½ìš° IAT ì— ìˆëŠ” ì •ë³´ë“¤ì´ unnamedImageEntryPointë¡œ í‘œí˜„
+// í•¨ìˆ˜ì˜ ì´ë¦„ì„ ëŒë ¤ì¤Œ
 const string *Target2String(ADDRINT target)
 {
 	string name = RTN_FindNameByAddress(target);
@@ -147,11 +147,11 @@ VOID  do_call_args(ADDRINT ins, const string *s, ADDRINT arg0, ADDRINT arg1, ADD
 	string apiName = *s;
 	PIN_LockClient();
 
-	// IMG_FindByAddress¸¦ ÅëÇØ ¹ŞÀº IMG Object IMG_NameÀ» ÅëÇØ ÀÌ¹ÌÁö ÀÌ¸§À» °¡Á®¿Ã ¼ö ÀÖÀ½
-	string img_name = IMG_Name(IMG_FindByAddress(ins)); // IMG_FindByAddress ÇöÀç ¸í·É¾î°¡ ¼ÓÇÑ ÀÌ¹Ì	Áö
+	// IMG_FindByAddressë¥¼ í†µí•´ ë°›ì€ IMG Object IMG_Nameì„ í†µí•´ ì´ë¯¸ì§€ ì´ë¦„ì„ ê°€ì ¸ì˜¬ ìˆ˜ ìˆìŒ
+	string img_name = IMG_Name(IMG_FindByAddress(ins)); // IMG_FindByAddress í˜„ì¬ ëª…ë ¹ì–´ê°€ ì†í•œ ì´ë¯¸	ì§€
 	PIN_UnlockClient();
 
-	// dll ÀÌ¸§¸¸ ÇÊ¿äÇÑ °æ¿ì ¾Æ·¡ÀÇ Á¤±Ô½ÄÀ» ÅëÇØ dll ÀÌ¸§¸¸ °¡Á®¿Ã ¼ö ÀÖÀ½
+	// dll ì´ë¦„ë§Œ í•„ìš”í•œ ê²½ìš° ì•„ë˜ì˜ ì •ê·œì‹ì„ í†µí•´ dll ì´ë¦„ë§Œ ê°€ì ¸ì˜¬ ìˆ˜ ìˆìŒ
 	string base_img_name = img_name.substr(img_name.find_last_of("/\\") + 1);
 
 	// String type 5 argument outputs
@@ -168,7 +168,7 @@ VOID  do_call_args(ADDRINT ins, const string *s, ADDRINT arg0, ADDRINT arg1, ADD
 	string argWchar4 = ReadToWChar(esp + 12);
 	string argWchar5 = ReadToWChar(esp + 16);
 
-	// Åë½Å °ü·Ã API Ãâ·Â
+	// í†µì‹  ê´€ë ¨ API ì¶œë ¥
 	for (string strAPI : printList)
 	{
 		if (apiName == strAPI)
@@ -316,23 +316,23 @@ VOID  do_call_indirect(ADDRINT target, BOOL taken)
 
 VOID Trace(TRACE trace, VOID *v)
 {
-	// ±³Âø»óÅÂ ¹æÁö
+	// êµì°©ìƒíƒœ ë°©ì§€
 	PIN_LockClient();
 	IMG img = IMG_FindByAddress(TRACE_Address(trace));
 	PIN_UnlockClient();
 
-	const BOOL print_args = KnobPrintArgs.Value(); // »ç¿ëÀÚ pin tool »ç¿ë½Ã -a ¿É¼Ç °ª "0" ¶Ç´Â "1" »ç¿ë switch
+	const BOOL print_args = KnobPrintArgs.Value(); // ì‚¬ìš©ì pin tool ì‚¬ìš©ì‹œ -a ì˜µì…˜ ê°’ "0" ë˜ëŠ” "1" ì‚¬ìš© switch
 
-												   // ÃßÀû °¡´ÉÇÑ ¶óÀÌºê·¯¸® ¿©ºÎ È®ÀÎ
+												   // ì¶”ì  ê°€ëŠ¥í•œ ë¼ì´ë¸ŒëŸ¬ë¦¬ ì—¬ë¶€ í™•ì¸
 	if (IMG_Valid(img))
 	{
-		// BBL(Basic block: a single entrace, single exit sequence of instructions) : ÇÑ¹ø ºĞ±â¿¡ ´ëÇÑ ¸í·É¾î ¸ğÀ½
-		//          ÃßÀûÇÒ Ã¹¹øÂ° BBL    BBL °ªÀÌ ÀÖ´ÂÁö Check    BBL_Next ´ÙÀ½ BBL
+		// BBL(Basic block: a single entrace, single exit sequence of instructions) : í•œë²ˆ ë¶„ê¸°ì— ëŒ€í•œ ëª…ë ¹ì–´ ëª¨ìŒ
+		//          ì¶”ì í•  ì²«ë²ˆì§¸ BBL    BBL ê°’ì´ ìˆëŠ”ì§€ Check    BBL_Next ë‹¤ìŒ BBL
 		for (BBL bbl = TRACE_BblHead(trace); BBL_Valid(bbl); bbl = BBL_Next(bbl))
 		{
-			INS tail = BBL_InsTail(bbl); // BBLÀÇ ¸¶Áö¸·
+			INS tail = BBL_InsTail(bbl); // BBLì˜ ë§ˆì§€ë§‰
 
-			if (INS_IsCall(tail)) // µğ½º¾î¼ÀºíÄÚµå¿¡¼­ CALL ¸í·ÉÀÌ ³ª¿À¸é : ins°¡ Call ¸í·É¾îÀÌ¸é
+			if (INS_IsCall(tail)) // ë””ìŠ¤ì–´ì…ˆë¸”ì½”ë“œì—ì„œ CALL ëª…ë ¹ì´ ë‚˜ì˜¤ë©´ : insê°€ Call ëª…ë ¹ì–´ì´ë©´
 			{
 				// Direct Call
 				if (INS_IsDirectControlFlow(tail))
@@ -341,14 +341,14 @@ VOID Trace(TRACE trace, VOID *v)
 					if (print_args)
 					{
 						INS_InsertPredicatedCall(tail, IPOINT_BEFORE, AFUNPTR(do_call_args),
-							IARG_INST_PTR, // ÇöÀç ¸í·É¾îÀÇ ÁÖ¼Ò 
-							IARG_PTR, Target2String(target), // call Å¸°Ù ÀÎÀÚ
-							IARG_FUNCARG_CALLSITE_VALUE, 0, //callÀÇ Ã¹¹øÂ° ÀÎÀÚ
-							IARG_FUNCARG_CALLSITE_VALUE, 1, //callÀÇ µÎ¹øÂ° ÀÎÀÚ
-							IARG_FUNCARG_CALLSITE_VALUE, 2, //callÀÇ ¼¼¹øÂ° ÀÎÀÚ
+							IARG_INST_PTR, // í˜„ì¬ ëª…ë ¹ì–´ì˜ ì£¼ì†Œ 
+							IARG_PTR, Target2String(target), // call íƒ€ê²Ÿ ì¸ì
+							IARG_FUNCARG_CALLSITE_VALUE, 0, //callì˜ ì²«ë²ˆì§¸ ì¸ì
+							IARG_FUNCARG_CALLSITE_VALUE, 1, //callì˜ ë‘ë²ˆì§¸ ì¸ì
+							IARG_FUNCARG_CALLSITE_VALUE, 2, //callì˜ ì„¸ë²ˆì§¸ ì¸ì
 							IARG_FUNCARG_CALLSITE_VALUE, 3,
 							IARG_FUNCARG_CALLSITE_VALUE, 4,
-							IARG_REG_VALUE, REG_ESP, // ÇöÀç ESP(½ºÅÃ Å©±â Á¶Á¤ ·¹Áö½ºÅÍ)
+							IARG_REG_VALUE, REG_ESP, // í˜„ì¬ ESP(ìŠ¤íƒ í¬ê¸° ì¡°ì • ë ˆì§€ìŠ¤í„°)
 							IARG_END);
 					}
 					else
@@ -360,8 +360,8 @@ VOID Trace(TRACE trace, VOID *v)
 				}
 				else // indirect call
 				{
-					// API¸íÀ» ¾Ë°íÀÖÀ»°æ¿ì
-					if (print_args) // arg °ªÀ» ÇÁ¸°Æ®ÇÒ °æ¿ì
+					// APIëª…ì„ ì•Œê³ ìˆì„ê²½ìš°
+					if (print_args) // arg ê°’ì„ í”„ë¦°íŠ¸í•  ê²½ìš°
 					{
 						INS_InsertCall(tail, IPOINT_BEFORE, AFUNPTR(do_call_args_indirect),
 							IARG_INST_PTR,
@@ -385,8 +385,8 @@ VOID Trace(TRACE trace, VOID *v)
 			{
 
 				RTN rtn = TRACE_Rtn(trace);
-				// ·çÆ¾ ÃßÀû - RTNÀº ÇÔ¼ö ½ÇÇà½Ã È£ÃâÇÒ ÇÔ¼öµéÀÌ´Ù. ÇÔ¼ö °ü·Ã ÇÔ¼öµéÀÌ ÀÖ´Â°÷
-				// ¿ÜºÎ¶óÀÌºê·¯¸®·Î Á¡ÇÁÇÏ¿© ÃßÀû, ÇÁ·Î±×·¥ÀÌ È£ÃâÇÏ´Â ¸ğµç ÇÔ¼ö°¡ ³ª¿­
+				// ë£¨í‹´ ì¶”ì  - RTNì€ í•¨ìˆ˜ ì‹¤í–‰ì‹œ í˜¸ì¶œí•  í•¨ìˆ˜ë“¤ì´ë‹¤. í•¨ìˆ˜ ê´€ë ¨ í•¨ìˆ˜ë“¤ì´ ìˆëŠ”ê³³
+				// ì™¸ë¶€ë¼ì´ë¸ŒëŸ¬ë¦¬ë¡œ ì í”„í•˜ì—¬ ì¶”ì , í”„ë¡œê·¸ë¨ì´ í˜¸ì¶œí•˜ëŠ” ëª¨ë“  í•¨ìˆ˜ê°€ ë‚˜ì—´
 				if (RTN_Valid(rtn) && !INS_IsDirectControlFlow(tail) && ".plt" == SEC_Name(RTN_Sec(rtn)))
 				{
 					if (print_args)
