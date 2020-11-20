@@ -17,7 +17,7 @@ Communication messages of the program cannot be extracted using pintool.
 
 6. Run the bat file with administrator privileges (requires designating the location by referring to the ProtocolTracer_sample.bat file)
 
-6-1. If you specify the location of the "OUTPUT" file in the bat file, the file will be created in that location.
+notice. If you specify the location of the "OUTPUT" file in the bat file, the file will be created in that location.
 
 
 # Result
